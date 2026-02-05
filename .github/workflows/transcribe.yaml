@@ -17,11 +17,10 @@ jobs:
 
         - name: setup firefox for simulation
           run: |
-            sudo snap install firefox
-            firefox -headless -CreateProfile "default" || true
-            timeout --preserve-status 5s firefox -headless -P "default" "https://www.youtube.com/" || true
-            timeout --preserve-status 10s firefox -headless -P "default" "https://www.youtube.com/results?search_query=castle%20on%20the%20hill" || true
-            timeout --preserve-status 30s firefox -headless -P "default" "https://www.youtube.com/watch?v=K0ibBPhiaG0" || true
+            sudo apt-get update -y && sudo apt-get install -y chromium-browser
+            timeout 5s chromium-browser --headless --disable-gpu --remote-debugging-port=9222 "https://www.youtube.com/" || true
+            timeout 10s chromium-browser --headless --disable-gpu --remote-debugging-port=9222 "https://www.youtube.com/results?search_query=castle%20on%20the%20hill" || true
+            timeout 30s chromium-browser --headless --disable-gpu --remote-debugging-port=9222 "https://www.youtube.com/watch?v=K0ibBPhiaG0" || true
     
         - name: Transcribe
           run: |

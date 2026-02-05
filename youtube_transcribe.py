@@ -68,7 +68,7 @@ class YouTubeTranscriber:
             'http_headers': {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             },
-            # 'cookiesfrombrowser': ('firefox',),
+            'cookiesfrombrowser': ('chromium',),
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
