@@ -18,7 +18,3 @@ python = "3.14.*"
 openai-whisper = ">=20250625, <20250626"
 torch = { version = "==2.10.0", index = "https://download.pytorch.org/whl/cu128" }
 torchvision = { version = "*", index = "https://download.pytorch.org/whl/cu128" }
-
-[target.linux-64.pypi-dependencies]
-torch = { version = "==2.10.0", index = "https://download.pytorch.org/whl/cpu" }
-torchvision = { version = "*", index = "https://download.pytorch.org/whl/cpu" }

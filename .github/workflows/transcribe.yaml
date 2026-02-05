@@ -18,6 +18,7 @@ jobs:
         - name: setup firefox for simulation
           run: |
             sudo snap install firefox
+            timeout --preserve-status 5s firefox -headless "https://www.youtube.com/" || true
             timeout --preserve-status 10s firefox -headless "https://www.youtube.com/results?search_query=castle%20on%20the%20hill" || true
             timeout --preserve-status 30s firefox -headless "https://www.youtube.com/watch?v=K0ibBPhiaG0" || true
     
