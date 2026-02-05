@@ -16,7 +16,9 @@ import json
 import os
 from pathlib import Path
 import whisper
+from faster_whisper import WhisperModel, BatchedInferencePipeline
 import yt_dlp
+import torch
 
 
 class YouTubeTranscriber:
@@ -33,7 +35,9 @@ class YouTubeTranscriber:
         
         # 加载 Whisper 模型
         print(f"正在加载 Whisper 模型: {model_size}")
-        self.model = whisper.load_model(model_size)
+        # self.model = whisper.load_model(model_size)
+        simple_model = WhisperModel(model_size, device="cuda" if torch.cuda.is_available() else "cpu", compute_type="float32")
+        self.model = BatchedInferencePipeline(model=simple_model)
         print("模型加载完成!")
     
     def download_audio(self, video_url, output_path="temp_audio.mp3"):
@@ -64,7 +68,7 @@ class YouTubeTranscriber:
             'http_headers': {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             },
-            'cookiesfrombrowser': ('firefox',),
+            # 'cookiesfrombrowser': ('firefox',),
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -98,11 +102,12 @@ class YouTubeTranscriber:
                 "總統、立法院、行政院、民進黨、國民黨、時事、新聞。"
             )
         
-        result = self.model.transcribe(
+        result, info = self.model.transcribe(
             audio_path, 
+            beam_size=5,
             language=language, 
-            verbose=True,
-            initial_prompt=initial_prompt
+            initial_prompt=initial_prompt,
+            batch_size=8,
         )
         print("转录完成!")
         return result
@@ -119,23 +124,19 @@ class YouTubeTranscriber:
         import re
         
         # 使用 segments 来保留原始的换行结构
-        if 'segments' in result:
-            # 从 segments 构建文本，保留原始的分段
-            lines = []
-            prev_line = None
-            
-            for segment in result['segments']:
-                text = segment['text'].strip()
-                if text:
-                    # 检查是否与前一行重复
-                    if prev_line is None or not self._is_duplicate_line(text, prev_line):
-                        lines.append(text)
-                        prev_line = text
-            
-            text = '\n'.join(lines)
-        else:
-            # 如果没有 segments，使用完整文本
-            text = result['text']
+        # 从 segments 构建文本，保留原始的分段
+        lines = []
+        prev_line = None
+
+        for segment in result:
+            text = segment.text.strip()
+            if text:
+                # 检查是否与前一行重复
+                if prev_line is None or not self._is_duplicate_line(text, prev_line):
+                    lines.append(text)
+                    prev_line = text
+
+        text = '\n'.join(lines)
         
         # 移除 "字幕由 Amara.org 社群提供" 等重复标注
         text = self._clean_subtitle_markers(text)
