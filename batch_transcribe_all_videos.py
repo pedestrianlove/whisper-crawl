@@ -6,6 +6,7 @@
 """
 
 import csv
+import argparse
 import json
 import re
 import subprocess
@@ -606,9 +607,16 @@ def main():
     print("="*80)
     
     # 设置参数
+    parser = argparse.ArgumentParser(
+                    prog='ProgramName',
+                    description='What the program does',
+                    epilog='Text at the bottom of help')
+    parser.add_argument('--filename', type=str)
+    args = parser.parse_args()
     data_dir = './data'
     transcripts_dir = './transcripts_all'
-    sample_json = "./中天新聞_videos.json"
+    # sample_json = "./中天新聞_videos.json"
+    sample_json = args.filename
     start_date = "2024-01-01"  # 开始日期
     end_date = "2025-10-31"    # 结束日期
     
@@ -680,9 +688,10 @@ def main():
     if MAX_VIDEOS:
         print(f"本次最多处理: {MAX_VIDEOS} 个")
     
-    response = input("\n是否开始转录? (y/N): ").strip().lower()
+    # response = input("\n是否开始转录? (y/N): ").strip().lower()
     
-    if response == 'y':
+    # if response == 'y':
+    if True:
         try:
             processor.batch_transcribe(
                 model_size=WHISPER_MODEL,
