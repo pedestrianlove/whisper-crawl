@@ -17,6 +17,9 @@ jobs:
 
         - name: setup firefox for simulation
           run: |
+            sudo apt-get update -y 
+            sudo apt-get upgrade -y 
+            sudo apt-get install -y coreutils
             sudo snap install firefox
             timeout 5 firefox -headless "https://www.youtube.com/results?search_query=castle%20on%20the%20hill"
             timeout 30 firefox -headless "https://www.youtube.com/watch?v=K0ibBPhiaG0"
