@@ -614,7 +614,7 @@ def main():
     parser.add_argument('--filename', type=str)
     args = parser.parse_args()
     data_dir = './data'
-    transcripts_dir = './transcripts_all'
+    transcripts_dir = './transcripts_' + args.filename.split('.')[0]
     # sample_json = "./中天新聞_videos.json"
     sample_json = args.filename
     start_date = "2024-01-01"  # 开始日期

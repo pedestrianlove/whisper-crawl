@@ -12,6 +12,8 @@ YouTube 影片转逐字稿工具
     2. 批量处理: 修改 main() 函数中的设置
 """
 
+import time
+import uuid
 import json
 import os
 from pathlib import Path
@@ -36,7 +38,7 @@ class YouTubeTranscriber:
         # 加载 Whisper 模型
         print(f"正在加载 Whisper 模型: {model_size}")
         # self.model = whisper.load_model(model_size)
-        simple_model = WhisperModel(model_size, device="cuda" if torch.cuda.is_available() else "cpu", compute_type="float32")
+        simple_model = WhisperModel(model_size, device="cuda" if torch.cuda.is_available() else "cpu", compute_type="float16")
         self.model = BatchedInferencePipeline(model=simple_model)
         print("模型加载完成!")
     
@@ -68,7 +70,7 @@ class YouTubeTranscriber:
             'http_headers': {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             },
-            'cookiesfrombrowser': ('chromium',),
+            # 'cookiesfrombrowser': ('chromium',),
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -107,7 +109,7 @@ class YouTubeTranscriber:
             beam_size=5,
             language=language, 
             initial_prompt=initial_prompt,
-            batch_size=8,
+            batch_size=16,
         )
         print("转录完成!")
         return result
@@ -380,16 +382,19 @@ class YouTubeTranscriber:
         Returns:
             转录结果
         """
-        audio_path = None
+        audio_path = str(uuid.uuid1()) + ".mp3"
         try:
             # 下载音频
-            audio_path, video_title, video_id = self.download_audio(video_url)
+            audio_path, video_title, video_id = self.download_audio(video_url, audio_path)
             
             # 转录
+            start = time.time()
             result = self.transcribe_audio(audio_path, language)
             
             # 保存结果
             self.save_transcript(result, video_id, video_title)
+            end = time.time()
+            print(f"总用时: {end - start:.2f} 秒")
             
             # 清理临时文件
             if not keep_audio and os.path.exists(audio_path):

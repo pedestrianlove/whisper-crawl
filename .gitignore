@@ -3,6 +3,7 @@
 !.pixi/config.toml
 transcripts_all/*
 transcripts_all/*
+transcripts_*
 
 
 # Byte-compiled / optimized / DLL files
